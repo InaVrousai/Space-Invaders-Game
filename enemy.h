@@ -9,7 +9,7 @@
 //public:
 //    Enemy(GameState* gs, const std::string& name, float initX, float initY, float initSpeed, int initHealth)
 //        : GameObject(gs, name), x(initX), y(initY), speed(initSpeed), health(initHealth) {}
-//
+//	  void init() override
 //    void update(float dt) override; // Update enemy state
 //    void draw() override;           // Render enemy
 //    bool isDead() const { return health <= 0; } // Check if enemy is dead
