@@ -1,6 +1,6 @@
 #pragma once
 #include "sgg/graphics.h"
-#include "collisionDisk.h"
+#include "defines.h"
 
 
 class Collision
