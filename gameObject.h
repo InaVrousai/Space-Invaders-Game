@@ -1,5 +1,13 @@
 #pragma once
 #include "sgg/graphics.h"
+#include "collisionDisk.h"
+
+
+class Collision
+{
+public:
+	virtual Disk getCollision() const = 0;
+};
 
 class GameObject
 {
