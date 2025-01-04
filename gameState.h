@@ -3,14 +3,14 @@
 #include "defines.h"
 //#include "Player.h"
 
-class Game {
+class GameState {
 public:
 	//enum game_state_t { STATE_INIT, STATE_LOADING, STATE_IDLE, STATE_MOVING, STATE_ATTACKING };
 	
 
 
 protected:
-	static Game* m_instance;
+	static GameState* m_instance;
 
 	//Player* player1;
 	//Player* player2;
@@ -20,7 +20,7 @@ protected:
 
 	//game_state_t m_state = STATE_INIT;
 
-	Game();
+	GameState();
 
 public:
 	
@@ -34,7 +34,7 @@ public:
 
 	
 	static void releaseInstance() { if (m_instance) delete m_instance; m_instance = nullptr; }
-	static Game* getInstance();
+	static GameState* getInstance();
 
-	~Game();
+	~GameState();
 };

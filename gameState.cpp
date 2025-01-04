@@ -1,17 +1,17 @@
 #pragma once
-#include "game.h"
+#include "gameState.h"
 #include "defines.h"
 #include "sgg/graphics.h"
 
 
-Game::Game() {
+GameState::GameState() {
 	// Initialization logic
 }
 
 
 
 
-void Game::update(float dt)
+void GameState::update(float dt)
 {
 	/*if (m_state == state_init)
 	{
@@ -26,7 +26,7 @@ void Game::update(float dt)
 
 }
 
-void Game::draw()
+void GameState::draw()
 {
 	graphics::Brush br;
 	br.outline_opacity = 0.0f;
@@ -47,14 +47,14 @@ void Game::draw()
 
 }
 
-Game* Game::getInstance()
+GameState* GameState::getInstance()
 {
 	if (!m_instance)
-		m_instance = new Game();
+		m_instance = new GameState();
 	return m_instance;
 }
 
-Game::~Game()
+GameState::~GameState()
 {
 }
-Game* Game::m_instance = nullptr;
+GameState* GameState::m_instance = nullptr;
