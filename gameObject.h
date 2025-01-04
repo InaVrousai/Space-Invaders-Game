@@ -6,7 +6,7 @@
 class Collision
 {
 public:
-	virtual Disk getCollision() const = 0;
+	virtual Disk getCollisionDisk() const = 0;
 };
 
 class GameObject
@@ -20,7 +20,7 @@ protected:
 public:
 	GameObject(GameState* gs, const std::string& name = "");
 	virtual void update(float dt) {}
-	virtual void init() {}
+	virtual void init(float x, float y) {} // added  x,y  
 	virtual void draw() {}
 	virtual ~GameObject() {}
 	bool isActive() { return m_active; }
