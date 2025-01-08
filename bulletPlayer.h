@@ -1,13 +1,23 @@
-//#pragma once
-//#include "gameobject.h"
-//
-//class bullet : public gameobject {
-//    float speed;
-//
-//public:
-//    bullet(float initx, float inity, float initspeed)
-//        : gameobject(initx, inity), speed(initspeed) {}
-//
-//    void update(float dt) override;
-//    void draw() override;
-//};
+#pragma once
+#include "gameObject.h"
+
+class BulletPlayer : public GameObject, public Collision{
+
+    float bx, by;
+    float speed = 7.0f;
+    float b_size = 1.0f;
+
+public:
+    BulletPlayer(GameState* gs, const std::string& name, float x, float y);
+
+    void update(float dt) override;
+    void draw() override;
+    void init(float x, float y) override;
+
+    Disk getCollisionDisk() const override;
+
+    bool isOutOfBounds() const; // Check if the bullet leaves the screen
+
+    ~BulletPlayer();
+    
+};

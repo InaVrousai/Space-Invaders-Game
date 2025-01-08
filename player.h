@@ -3,15 +3,15 @@
 
 class Player : public GameObject ,public Collision{
     float m_pos[2];   // Player's position
-    float speed = 10.0f; 
+    float speed = 8.0f; 
     int score;
-    char moveLeftKey, moveRightKey, shootKey;
+    int playerId;
     float life = 3.0f;
-    float p_size = 45;
+    float p_size = 2.0f;
 
 public:
     // Constructor
-    Player(GameState* gs, const std::string& name);
+    Player(GameState* gs, const std::string& name, int id);
       
     void init(float x, float y) override;
     void update(float dt) override;
@@ -21,6 +21,7 @@ public:
     float getPosY() { return m_pos[1]; }
     void setPosX(float x) { m_pos[0] = x; }
     void setPosY(float y) { m_pos[1] = y; }
+    int getId();
     Disk getCollisionDisk()const override;
 
     float getRemainingLife() const { return life; };
