@@ -7,7 +7,8 @@ class Enemy : public GameObject,public Collision {
     float speed = 0.1f;    // Movement speed
     int health;     // Enemy health points
     graphics::Brush brush_en;
-
+    float shoot_timer = 0.0f;       // Timer for controlling shooting intervals
+    const float shoot_interval = 2.0f; // Time in seconds between shots
 public:
     //Enemy(GameState* gs, const std::string& name, float initX, float initY, float initSpeed, int initHealth)
       //  : GameObject(gs, name), x(initX), y(initY), speed(initSpeed), health(initHealth) {}
@@ -22,4 +23,5 @@ public:
     float getPosY() { return this->y; }
     void setPosX(float x) { this->x = x; }
     void setPosY(float y) { this->y = y; }
+    void shoot();
 };

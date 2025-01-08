@@ -24,6 +24,9 @@ void GameState::update(float dt)
 		return;
 	}*/
 
+	//update enemy bullets
+	updateBullets(dt);
+
 }
 
 void GameState::draw()
@@ -35,9 +38,6 @@ void GameState::draw()
 
 	//graphics::setFont("free-sans.ttf");
 	graphics::drawText(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 0.5f, "Loading assets...", br);
-		
-		
-
 
 	//DRAW BACKROUND
 	br.outline_opacity = 0.0f;
@@ -45,6 +45,32 @@ void GameState::draw()
 	SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
 	graphics::drawRect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT, br);
 
+	//draw enemy bullets
+	drawBullets();
+}
+
+void GameState::addBullet(bulletEnemy* bullet)
+{
+	m_bullets.push_back(bullet);
+}
+
+void GameState::updateBullets(float dt)
+{
+	for (auto bullet : m_bullets) {
+		if (bullet->isActive())
+			bullet->update(dt);
+	}
+	m_bullets.erase(std::remove_if(m_bullets.begin(), m_bullets.end(),
+		[](Bullet* b) { return !b->isActive(); }),
+		m_bullets.end());
+}
+
+void GameState::drawBullets()
+{
+	for (auto bullet : m_bullets) {
+		if (bullet->isActive())
+			bullet->draw();
+	}
 }
 
 GameState* GameState::getInstance()

@@ -1,4 +1,5 @@
 #include "enemy.h"
+#include "bulletEnemy.h"
 #include <sgg/graphics.h>
 
 void Enemy::init()
@@ -23,6 +24,15 @@ void Enemy::takeDamage(int damage)
 		health = 0;
 }
 
+void Enemy::shoot()
+{
+	if (!isActive()) { return; }
+
+	bulletEnemy* bullet = new bulletEnemy(m_state, "EnemyBullet");
+	bullet->init();
+	m_state->addBullet();
+}
+
 Enemy::Enemy(GameState* gs, const std::string& name)
 	:GameObject(gs,name)
 {
@@ -33,6 +43,11 @@ Enemy::Enemy(GameState* gs, const std::string& name)
 
 void Enemy::update(float dt)
 {
+	shoot_timer += dt / 1000.0f; // Convert to seconds
+	if (shoot_timer >= shoot_interval) {
+		shoot_timer = 0.0f; // Reset timer
+		shoot();
+	}
 	//gia ena xroniko diasthma na phgainei aristera,gia to idio panw klp.
 	while (dt <= 50)
 		if (dt <= 10)
@@ -47,6 +62,8 @@ void Enemy::update(float dt)
 			speed -= 0.1f;
 			y += y * speed;
 
+	while (!isDead())
+		fireBullet();
 	if (isDead())
 		//delete?
 	//Boundary check:
@@ -60,4 +77,5 @@ void Enemy::update(float dt)
 	*/
 			/*
 			*/
-}
+}/*
+ */
