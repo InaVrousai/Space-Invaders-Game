@@ -27,7 +27,7 @@ void bulletEnemy::draw()
 	graphics::drawRect(x, y, 1.0f, 1.0f, bulletBrush);
 }
 
-void bulletEnemy::update(dt)
+void bulletEnemy::update(float dt)
 {
 	y += speed * (dt / 1000.0f);
 	//outofbound deactivation

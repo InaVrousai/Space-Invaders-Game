@@ -14,7 +14,7 @@ public:
       //  : GameObject(gs, name), x(initX), y(initY), speed(initSpeed), health(initHealth) {}
 	
     Enemy(GameState* gs, const std::string& name);
-    void init() override
+    void init() override;
     void update(float dt) override; // Update enemy state
     void draw() override;           // Render enemy
     bool isDead() const { return health <= 0; } // Check if enemy is dead
