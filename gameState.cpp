@@ -24,6 +24,11 @@ void GameState::init()
 
 	//spawnEnemies();
 	m_state = STATE_RUNNING;
+
+	//enemy init
+	Enemy* enemy = new Enemy(this, "Enemy");
+	enemy->init(5.0f, 5.0f);
+	enemies.push_back(enemy);
 }
 
 void GameState::update(float dt)
@@ -68,7 +73,29 @@ void GameState::update(float dt)
 		// Possibly wait for user input to restart or quit
 	}
 
-	
+	//enemy updates
+	for (auto enemy : enemies)
+	{
+		if (enemy) { enemy->update(dt); }
+	}
+	for (auto it = enemy_bullets.begin(); it != enemy_bullets.end();) {
+		(*it)->update(dt);
+		if (!(*it)->isActive()) {
+			// Remove from active bullets map if it matches
+			for (auto& pair : activeBullets) {
+				if (pair.second == *it) {
+					activeBullets[pair.first] = nullptr;  // Clear active bullet for the player
+					break;
+				}
+			}
+
+			delete* it; // Clean up memory
+			it = enemy_bullets.erase(it); // Remove bullet from list
+		}
+		else {
+			++it;
+		}
+	}
 
 }
 
@@ -111,6 +138,17 @@ void GameState::draw()
 		for (const auto& bullet : bullets_p) {
 			bullet->draw();
 			 
+		}
+
+		//enemy draw
+		for (auto enemy : enemies) {
+			if (enemy->isActive()) {
+				enemy->draw();
+			}
+		}
+		for (auto bullet : enemy_bullets) {
+			if (bullet->isActive())
+				bullet->draw();
 		}
 
 	}
@@ -157,7 +195,10 @@ GameState* GameState::getInstance()
 	return m_instance;
 }
 
-
+void GameState::addBullet(bulletEnemy* bullet)
+{
+	enemy_bullets.push_back(bullet);
+}
 
 GameState::~GameState()
 {
@@ -165,6 +206,11 @@ GameState::~GameState()
 	delete player2;
 
 	for (auto bullet : bullets_p) delete bullet;
-	//for (auto enemy : enemies) delete enemy;
+	for (auto enemy : enemies) { delete enemy; }
+	enemies.clear();
+	for (auto bullet : enemy_bullets) {
+		delete bullet;
+	}
+	enemy_bullets.clear();
 }
 

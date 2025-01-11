@@ -56,5 +56,7 @@ public:
 	static void releaseInstance() { if (m_instance) delete m_instance; m_instance = nullptr; }
 	static GameState* getInstance();
 
+	void addBullet(bulletEnemy* bullet);
+
 	~GameState();
 };
