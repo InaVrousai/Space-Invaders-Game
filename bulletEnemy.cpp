@@ -1,22 +1,24 @@
 #include "bulletEnemy.h"
-#include "defines.h"
 
 bulletEnemy::bulletEnemy(GameState* gs, const std::string& name)
-	:GameObject(gs, name)
+{
+	GameObject(gs, name);
+	x = Enemy::getPosX();
+	y = Enemy::getPosY();
+}
+
+void bulletEnemy::fireBullet()
 {
 }
 
-void bulletEnemy::init(float x, float y)
+void bulletEnemy::init() 
 {
-	this->x = x;
-	this->y = y;
-
 	bulletBrush.outline_opacity = 0.0f;
 	bulletBrush.fill_opacity = 1.0f;
-	bulletBrush.fill_color[0] = 0.0f;
+	bulletBrush.fill_color[0] = 1.0f;
 	bulletBrush.fill_color[1] = 0.0f;
 	bulletBrush.fill_color[2] = 0.0f;
-	bulletBrush.texture = ASSET_PATH + std::string("bullet.png");
+	//bulletBrush.texture = "";
 }
 
 void bulletEnemy::draw()
@@ -29,5 +31,5 @@ void bulletEnemy::update(float dt)
 {
 	y += speed * (dt / 1000.0f);
 	//outofbound deactivation
-	if (y < 0 || y > CANVAS_HEIGHT || x < 0 || x > CANVAS_WIDTH) setActive(false);
+	if (y < 0) setActive(false);
 }
