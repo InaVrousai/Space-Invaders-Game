@@ -16,7 +16,7 @@ void Enemy::draw()
 	brush_en.outline_opacity = 0.0f;
 	brush_en.texture = ASSET_PATH + std::string("spaceship.png");
 	SETCOLOR(brush_en.fill_color, 1.0f, 0.0f, 0.0f);
-	graphics::drawRect(getPosX(), getPosY(), 3.0f, 3.0f, brush_en);
+	graphics::drawRect(getPosX(), getPosY(), 1.5f, 1.5f, brush_en);
 }
 
 void Enemy::takeDamage(int damage)
@@ -25,6 +25,7 @@ void Enemy::takeDamage(int damage)
 		health -= damage;
 	else
 		health = 0;
+	setActive(false);
 }
 
 void Enemy::shoot()
@@ -39,31 +40,33 @@ void Enemy::shoot()
 Enemy::Enemy(GameState* gs, const std::string& name)
 	:GameObject(gs, name)
 {
-	//initialize enemy position
-	x = 5.0f;
-	y = 5.0f;
 }
 
 void Enemy::update(float dt)
 {
 	shoot_timer += dt / 1000.0f; // Convert to seconds
-	if (shoot_timer >= shoot_interval) {
+	if (shoot_timer >= shoot_idle) {
 		shoot_timer = 0.0f; // Reset timer
 		shoot();
 	}
-	setPosX(getPosX() + speed * dir * dt * 0.005f);
+	setPosX(getPosX() + dirX * speed * dt * 0.005f);
+	setPosY(getPosY() + speed * dirY * dt * 0.005f);
 	speed += 0.001f;
 
+	if (speed > max_speed) {
+		speed -= slowdown_rate;
+		if (speed < max_speed) { speed = max_speed; }
+	}
+
 	if (isDead()) { setActive(false); return; }
-	//Boundary check:
-	/*if (getPosX() < 0 || getPosX() > CANVAS_WIDTH ||
-		getPosY() < 0 || getPosY() > CANVAS_HEIGHT) {
-		setActive(false); // Deactivate the enemy
-	}*/
 	//Change directions in the boundaries
 	if (getPosX() < 0 || getPosX() > CANVAS_WIDTH)
 	{
-		dir *= -1;
+		dirX *= -1;
+	}
+	if (getPosY() < 0 || getPosY() > CANVAS_HEIGHT - 5.0f)
+	{
+		dirY *= -1;
 	}
 }
 

@@ -26,9 +26,11 @@ void GameState::init()
 	m_state = STATE_RUNNING;
 
 	//enemy init
-	Enemy* enemy = new Enemy(this, "Enemy");
-	enemy->init(5.0f, 5.0f);
-	enemies.push_back(enemy);
+	for (int i = 0; i <= 4; ++i) {
+		Enemy* enemy = new Enemy(this, "Enemy");
+		enemy->init(i * 2.5f, 5.0f);
+		enemies.push_back(enemy);
+	}
 }
 
 void GameState::update(float dt)
