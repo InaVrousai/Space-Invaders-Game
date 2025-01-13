@@ -26,11 +26,7 @@ void GameState::init()
 	m_state = STATE_RUNNING;
 
 	//enemy init
-	for (int i = 0; i <= 4; ++i) {
-		Enemy* enemy = new Enemy(this, "Enemy");
-		enemy->init(i * 2.5f, 5.0f);
-		enemies.push_back(enemy);
-	}
+	spawnEnemies();
 }
 
 void GameState::update(float dt)
@@ -98,7 +94,7 @@ void GameState::update(float dt)
 			++it;
 		}
 	}
-
+	checkCollisions();
 }
 
 void GameState::draw()
@@ -165,6 +161,59 @@ void GameState::draw()
 			m_state = STATE_INIT; // Restart the game
 		}
 
+	}
+}
+
+void GameState::spawnEnemies()
+{
+	for (int i = 0; i <= 4; ++i) {
+		Enemy* enemy = new Enemy(this, "Enemy");
+		enemy->init(i * 2.5f, 5.0f);
+		enemies.push_back(enemy);
+	}
+}
+
+void GameState::checkCollisions()
+{
+	for (auto& en_bullet : enemy_bullets)
+	{
+		float x1 = en_bullet->getPosX() - player1->getPosX();
+		float y1 = en_bullet->getPosY() - player1->getPosY();
+
+		float dist1 = sqrt(pow(x1, 2) + pow(y1, 2)) - player1->getCollisionDisk().radius -
+			en_bullet->getCollisionDisk().radius;
+		if (dist1 < 0) {
+			if (dist1 < 0) {
+				if (player1->getRemainingLife() >= en_bullet->getDamage())
+				{
+					player1->setRemainingLife(player1->getRemainingLife()
+						- en_bullet->getDamage());
+				}
+				else
+				{
+					player1->setRemainingLife(0);
+				}
+				en_bullet->setActive(false);
+			}
+		}
+
+		float x2 = en_bullet->getPosX() - player2->getPosX();
+		float y2 = en_bullet->getPosY() - player2->getPosY();
+
+		float dist2 = sqrt(pow(x2, 2) + pow(y2, 2)) -
+			player1->getCollisionDisk().radius
+			- en_bullet->getCollisionDisk().radius;
+		if (dist2 < 0) {
+			if (player2->getRemainingLife() >= en_bullet->getDamage())
+			{
+				player2->setRemainingLife(player2->getRemainingLife()
+					- en_bullet->getDamage());
+			}
+			else {
+				player2->setRemainingLife(0);
+			}
+			en_bullet->setActive(false);
+		}
 	}
 }
 

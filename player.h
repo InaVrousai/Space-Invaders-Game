@@ -25,7 +25,7 @@ public:
     Disk getCollisionDisk()const override;
 
     float getRemainingLife() const { return life; };
-
+    void setRemainingLife(float life) { this->life = life; }
     int getScore() const { return score; }
     void addScore(int points) { score += points; }
 

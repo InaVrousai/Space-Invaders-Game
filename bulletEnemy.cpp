@@ -31,3 +31,12 @@ void bulletEnemy::update(float dt)
 	//outofbound deactivation
 	if (y < 0 || y > CANVAS_HEIGHT || x < 0 || x > CANVAS_WIDTH) setActive(false);
 }
+
+Disk bulletEnemy::getCollisionDisk() const
+{
+	Disk disk;
+	disk.cx = x;
+	disk.cy = y - 5;
+	disk.radius = b_en_size / 2.0f;
+	return disk;
+}
