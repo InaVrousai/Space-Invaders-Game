@@ -28,15 +28,6 @@ void Enemy::takeDamage(int damage)
 	setActive(false);
 }
 
-void Enemy::shoot()
-{
-	if (!isActive()) { return; }
-
-	bulletEnemy* bullet = new bulletEnemy(m_state, "EnemyBullet");
-	bullet->init(getPosX(), getPosY());
-	m_state->addBullet(bullet);
-}
-
 Enemy::Enemy(GameState* gs, const std::string& name)
 	:GameObject(gs, name)
 {
@@ -44,13 +35,8 @@ Enemy::Enemy(GameState* gs, const std::string& name)
 
 void Enemy::update(float dt)
 {
-	shoot_timer += dt / 1000.0f; // Convert to seconds
-	if (shoot_timer >= shoot_idle) {
-		shoot_timer = 0.0f; // Reset timer
-		shoot();
-	}
-	setPosX(getPosX() + dirX * speed * dt * 0.005f);
-	setPosY(getPosY() + speed * dirY * dt * 0.005f);
+
+	setPosX(getPosX() + dir * speed * dt * 0.005f);
 	speed += 0.001f;
 
 	if (speed > max_speed) {
@@ -62,11 +48,7 @@ void Enemy::update(float dt)
 	//Change directions in the boundaries
 	if (getPosX() < 0 || getPosX() > CANVAS_WIDTH)
 	{
-		dirX *= -1;
-	}
-	if (getPosY() < 0 || getPosY() > CANVAS_HEIGHT - 5.0f)
-	{
-		dirY *= -1;
+		dir *= -1;
 	}
 }
 
