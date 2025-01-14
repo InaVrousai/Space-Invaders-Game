@@ -6,6 +6,7 @@
 #include "sgg/graphics.h"
 #include "bulletPlayer.h"
 #include "gameObject.h"
+#include "enemy.h"
 
 class GameState {
 public:
@@ -21,19 +22,20 @@ public:
 protected:
 	static GameState* m_instance;
 
+	// PLAYER
+
 	Player* player1 = nullptr;
 	Player* player2 = nullptr;
-
+	
+	//PLAYER BULLET
 	std::vector<GameObject*> bullets_p;  // Active player bullets
 	std::unordered_map<int, float> lastShootTime; // Last shoot time for each player
 	std::unordered_map<int, BulletPlayer*> activeBullets; // Tracks active bullets for each player
 
 	float shootCooldown = 0.5f;
 
-
-
-	//std::vector<GameObject*> enemies; // Active enemies
-
+	//ENEMY
+	std::vector<GameObject*> enemies; // List of active enemies
 	
 	//int state;//MENU, RUNNING, GAME_OVER
 
@@ -47,6 +49,7 @@ public:
 	void update(float dt);
 	void draw();
 	void spawnEnemies();//this methodt is responsible for creating and adding new enemy
+	void updateEnemyGrid(float dt);
 	void checkCollisions();
 	void shootBulletForPlayer(Player* player);
 	bool canShoot(int playerId) const;
@@ -55,8 +58,6 @@ public:
 	
 	static void releaseInstance() { if (m_instance) delete m_instance; m_instance = nullptr; }
 	static GameState* getInstance();
-
-	void addBullet(bulletEnemy* bullet);
 
 	~GameState();
 };

@@ -4,7 +4,7 @@
 class BulletPlayer : public GameObject, public Collision{
 
     float bx, by;
-    float speed = 7.0f;
+    float speed = 3.0f;
     float b_size = 1.0f;
 
 public:

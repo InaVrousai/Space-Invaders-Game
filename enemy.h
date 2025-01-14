@@ -1,27 +1,30 @@
-#include "gameobject.h"
+#pragma once
+#include "GameObject.h"
 #include <sgg/graphics.h>
 
-class Enemy : public GameObject {
-    float x = 0.0f, y = 0.0f;     // Enemy's position
-    float speed = 0.1f;    // Movement speed
-    float en_size = 2.0f;
-    int health = 10;     // Enemy health points
-    int dir = 1;  //Move direction
-
-    graphics::Brush brush_en;
-
-    const float max_speed = 1.0f;
-    const float slowdown_rate = 0.01f;
+class Enemy : public GameObject, public Collision {
+    float x, y;     // Enemy's position
+    float speed;    // Movement speed
+    int health;     // Enemy health points
+    float shoot_timer = 0.0f;       // Timer for controlling shooting intervals
+    const float shoot_interval = 2.0f; // Time in seconds between shots
 public:
+   
     Enemy(GameState* gs, const std::string& name);
     void init(float x, float y) override;
-    void update(float dt) override;
-    void draw() override;
-    bool isDead() const { return health <= 0; }
-    void takeDamage(int damage);
-
-    float getPosX() const { return this->x; }
-    float getPosY() const { return this->y; }
+    void update(float dt) override; // Update enemy state
+    void draw() override;           // Render enemy
+   
+    bool isDead() const { return health <= 0; } // Check if enemy is dead
+    void takeDamage(int damage);    // Reduce health when hit
+    
+    float getPosX() { return this->x; }
+    float getPosY() { return this->y; }
     void setPosX(float x) { this->x = x; }
     void setPosY(float y) { this->y = y; }
+    //void shoot();
+    Disk getCollisionDisk() const override;
+
+    
+
 };
