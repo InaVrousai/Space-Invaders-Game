@@ -4,15 +4,11 @@
 #include "sgg/graphics.h"
 #include "player.h"
 #include <iostream>
-
-
+#include "bulletEnemy.h"
 
 GameState* GameState::m_instance = nullptr;
 
 GameState::GameState() {}
-
-
-
 
 void GameState::init()
 {
@@ -22,22 +18,24 @@ void GameState::init()
 	player2 = new Player(this, "Player2", 2);
 	player2->init(CANVAS_WIDTH - 5.0f, CANVAS_HEIGHT - 2.0f);
 
-	
+
 	spawnEnemies();
-	m_state = STATE_RUNNING;
+	m_state = STATE_INIT;
 }
 
 void GameState::update(float dt)
 {
-	
+
 	if (m_state == STATE_INIT)
 	{
+		if (graphics::getKeyState(graphics::SCANCODE_R)) { m_state = STATE_RUNNING; }
+		if (graphics::getKeyState(graphics::SCANCODE_ESCAPE)) { exit(0); }
 		return;
 	}
 	if (m_state == STATE_RUNNING)
 	{
-		if (player1) {player1->update(dt);}
-		if (player2) {player2->update(dt);}
+		if (player1) { player1->update(dt); }
+		if (player2) { player2->update(dt); }
 		// Update bullets
 		for (auto it = bullets_p.begin(); it != bullets_p.end();) {
 			(*it)->update(dt);
@@ -74,25 +72,43 @@ void GameState::update(float dt)
 			}
 		}
 
+		for (auto it = enemy_bullets.begin(); it != enemy_bullets.end();) {
+			(*it)->update(dt);
+			if (!(*it)->isActive()) {
+				delete* it;
+				it = enemy_bullets.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+
+		//enemy bullets
+		en_bullet_spawn_timer += dt / 1000.0f;
+		if (en_bullet_spawn_timer >= en_bullet_spawn_period) {
+			en_bullet_spawn_timer = 0.0f;
+			spawnRandomBullet();
+		}
 		// Check for collisions
 		checkCollisions();
-
+		// delete a player once he dies
+		if (player1->getRemainingLife() <= 0) { player1->setActive(false); }
+		if (player2->getRemainingLife() <= 0) { player2->setActive(false); }
 		// Example: Check for game-over conditions
 		if (player1->getRemainingLife() <= 0 && player2->getRemainingLife() <= 0) {
 			m_state = STATE_GAME_OVER; // Transition to game over
 		}
-	}else if (m_state == STATE_GAME_OVER) {
-		// Handle game-over state
-		// Possibly wait for user input to restart or quit
 	}
-
-	
-
+	else if (m_state == STATE_GAME_OVER) {
+		// Handle game-over state
+		if (graphics::getKeyState(graphics::SCANCODE_R)) { m_state = STATE_INIT; }
+		if (graphics::getKeyState(graphics::SCANCODE_ESCAPE)) { exit(0); }
+		return;
+	}
 }
 
 void GameState::draw()
 {
-	
 
 	graphics::Brush br;
 	br.outline_opacity = 0.0f;
@@ -100,30 +116,33 @@ void GameState::draw()
 
 	if (m_state == STATE_INIT)
 	{
-		graphics::setFont("free-sans.ttf");
-		graphics::drawText(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 0.5f, "Loading assets...",br);
-		m_state = STATE_LOADING;
+		graphics::Brush init_br;
+		graphics::setFont(ASSET_PATH + std::string("OpenSans-Bold.ttf"));
+		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f + 1.0f, 1.0f, "Press R to Start", init_br);
+
+		SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
+		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f + 4.0f, 1.0f, "Press ESC to Quit", init_br);
 		return;
 	}
-	
+
 	if (m_state == STATE_LOADING) {
-		graphics::setFont("free-sans.ttf");
+		graphics::setFont(ASSET_PATH + std::string("OpenSans-Bold.ttf"));
 		graphics::drawText(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 0.5f, "Game is starting...", br);
 		init(); // Call init to set up the game
 		return;
 	}
-	
+
 
 	if (m_state == STATE_RUNNING) {
 		// Draw background
 		br.outline_opacity = 0.0f;
-		br.texture = ASSET_PATH + std::string("backround.png");
-		SETCOLOR(br.fill_color, 1.0f, 0.0f, 0.0f);
+		br.texture = ASSET_PATH + std::string("background.png");
+		SETCOLOR(br.fill_color, 0.0f, 0.0f, 1.0f);
 		graphics::drawRect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT, br);
 
 		// Draw players
-		if (player1) player1->draw();
-		if (player2) player2->draw();
+		if (player1->isActive()) player1->draw();
+		if (player2->isActive()) player2->draw();
 
 		//Draw enemy
 		for (const auto& enemy : enemies) {
@@ -132,22 +151,39 @@ void GameState::draw()
 
 		// Draw player bullets
 		for (const auto& bullet : bullets_p) {
-			bullet->draw();
-			 
+			if (bullet->isActive())
+				bullet->draw();
 		}
 
+		for (auto bullet : enemy_bullets) {
+			if (bullet->isActive())
+				bullet->draw();
+		}
+		//Draw player hearts
+		graphics::Brush heart_br;
+		heart_br.outline_opacity = 0.0f;
+		heart_br.texture = ASSET_PATH + std::string("heart.png");
+		heart_br.fill_color[0] = 1.0f;
+		heart_br.fill_color[1] = 0.0f;
+		heart_br.fill_color[2] = 0.0f;
+		for (int i = 0; i < player1->getRemainingLife(); ++i) {
+			graphics::drawRect(i + 1.5f, CANVAS_HEIGHT - 2.0f, 0.5f, 0.5f, heart_br);
+		}
+		for (int i = 0; i < player2->getRemainingLife(); ++i) {
+			graphics::drawRect(CANVAS_WIDTH - i - 1.5f, CANVAS_HEIGHT - 2.0f, 0.5f, 0.5f, heart_br);
+		}
 	}
 	else if (m_state == STATE_GAME_OVER) {
 		// Draw game-over screen
-		graphics::setFont("free-sans.ttf");
-		graphics::drawText(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 0.5f, "Game Over!", br);
-		graphics::drawText(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 1.0f, 0.3f, "Press R to Restart", br);
+		graphics::Brush game_over_br;
+		graphics::setFont(ASSET_PATH + std::string("OpenSans-Bold.ttf"));
+		graphics::drawText(CANVAS_WIDTH / 2.0f - 7.0f, CANVAS_HEIGHT / 2.0f, 2.5f, "Game Over!", game_over_br);
+		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f + 1.0f, 1.0f, "Press R to Restart", game_over_br);
 
-		// Wait for restart input
-		if (graphics::getKeyState(graphics::SCANCODE_R)) {
-			m_state = STATE_INIT; // Restart the game
-		}
-
+		//Quit text
+		SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
+		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f + 4.0f, 1.0f, "Press ESC to Quit", game_over_br);
+		return;
 	}
 }
 
@@ -167,7 +203,7 @@ void GameState::updateEnemyGrid(float dt) {
 			if (ex > gridEdgeRight) gridEdgeRight = ex;
 		}
 	}
-	
+
 
 	// Reverse direction at boundaries
 	if ((gridEdgeRight >= CANVAS_WIDTH - BORDER_BUFFER && gridDirection > 0) || (gridEdgeLeft <= 0 && gridDirection < 0)) {
@@ -180,7 +216,7 @@ void GameState::updateEnemyGrid(float dt) {
 	// Move all enemies in the current direction
 	for (auto& enemy : enemies) {
 		Enemy* e = dynamic_cast<Enemy*>(enemy);
-		if (e) e->setPosX(e->getPosX() + gridDirection * gridSpeed * dt);
+		if (e) e->setPosX(e->getPosX() + gridDirection * gridSpeed * dt * 0.005f);
 	}
 
 }
@@ -220,8 +256,8 @@ void GameState::shootBulletForPlayer(Player* player)
 
 	BulletPlayer* bullet = new BulletPlayer(this, "Bullet", player->getPosX(), player->getPosY() - 0.5f);
 	bullets_p.push_back(bullet);
-	activeBullets[player->getId()] = bullet; 
-	
+	activeBullets[player->getId()] = bullet;
+
 }
 
 bool GameState::canShoot(int playerId) const
@@ -309,10 +345,62 @@ void GameState::checkCollisions() {
 			++bulletIt;
 		}
 	}
+	for (auto& en_bullet : enemy_bullets)
+	{
+		bulletEnemy* enemy_bullet = static_cast<bulletEnemy*>(en_bullet);
+		float x1 = enemy_bullet->getPosX() - player1->getPosX();
+		float y1 = enemy_bullet->getPosY() - player1->getPosY();
+
+		float dist1 = sqrt(pow(x1, 2) + pow(y1, 2)) - player1->getCollisionDisk().radius -
+			enemy_bullet->getCollisionDisk().radius;
+		if (dist1 < 0) {
+			if (dist1 < 0) {
+				if (player1->getRemainingLife() >= enemy_bullet->getDamage())
+				{
+					player1->setRemainingLife(player1->getRemainingLife()
+						- enemy_bullet->getDamage());
+				}
+				else
+				{
+					player1->setRemainingLife(0);
+				}
+				en_bullet->setActive(false);
+			}
+		}
+
+		float x2 = enemy_bullet->getPosX() - player2->getPosX();
+		float y2 = enemy_bullet->getPosY() - player2->getPosY();
+
+		float dist2 = sqrt(pow(x2, 2) + pow(y2, 2)) -
+			player1->getCollisionDisk().radius
+			- enemy_bullet->getCollisionDisk().radius;
+		if (dist2 < 0) {
+			if (player2->getRemainingLife() >= enemy_bullet->getDamage())
+			{
+				player2->setRemainingLife(player2->getRemainingLife()
+					- enemy_bullet->getDamage());
+			}
+			else {
+				player2->setRemainingLife(0);
+			}
+			en_bullet->setActive(false);
+		}
+	}
+
 }
 
+void GameState::spawnRandomBullet()
+{
+	float randomX = getRandomFloat(0.0f, CANVAS_WIDTH);
+	float randomY = getRandomFloat(0.0f, CANVAS_HEIGHT / 2.0f);
+	bulletEnemy* en_bullet = new bulletEnemy(this, "EnemyBullet");
+	en_bullet->init(randomX, randomY);
+	enemy_bullets.push_back(en_bullet);
+}
 
-
+float GameState::getRandomFloat(float min, float max) {
+	return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / (max - min));
+}
 
 GameState::~GameState()
 {
@@ -320,6 +408,8 @@ GameState::~GameState()
 	delete player2;
 
 	for (auto bullet : bullets_p) delete bullet;
-	//for (auto enemy : enemies) delete enemy;
+	for (auto enemy : enemies) delete enemy;
+	for (auto bullet : enemy_bullets) {
+		delete bullet;
+	}
 }
-
