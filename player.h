@@ -1,9 +1,9 @@
 #pragma once
-#include "GameObject.h"
+#include "gameObject.h"
 
-class Player : public GameObject ,public Collision{
+class Player : public GameObject, public Collision {
     float m_pos[2];   // Player's position
-    float speed = 8.0f; 
+    float speed = 8.0f;
     int score;
     int playerId;
     float life = 3.0f;
@@ -12,7 +12,7 @@ class Player : public GameObject ,public Collision{
 public:
     // Constructor
     Player(GameState* gs, const std::string& name, int id);
-      
+
     void init(float x, float y) override;
     void update(float dt) override;
     void draw() override;
@@ -28,6 +28,7 @@ public:
     void setRemainingLife(float life) { this->life = life; }
 
     int getScore() const { return score; }
+    void setScore(int score) { this->score = score; }
     void addScore(int points) { score += points; }
 
 

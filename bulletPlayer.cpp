@@ -4,7 +4,7 @@
 #include <iostream>
 
 BulletPlayer::BulletPlayer(GameState* gs, const std::string& name, float x, float y)
-	:GameObject(gs, name), bx(x),by(y)
+	:GameObject(gs, name), bx(x), by(y)
 {
 	init(x, y);
 }
@@ -20,16 +20,16 @@ void BulletPlayer::draw() {
 	graphics::Brush br;
 
 	SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
-	br.texture = "";
+	br.texture = ASSET_PATH + std::string("bullet.png");
 	br.outline_opacity = 0.0f;
 	br.gradient = false;
 	graphics::drawRect(bx, by, 0.3f, 0.6f, br);
 
 }
 
-void BulletPlayer:: update(float dt)
+void BulletPlayer::update(float dt)
 {
-	by -= speed * dt; // Move the bullet upwards based on normalized dt
+	by -= speed * (dt / 1000.0f); // Move the bullet upwards based on normalized dt
 	if (isOutOfBounds()) {
 		setActive(false);
 	}

@@ -98,6 +98,8 @@ void GameState::update(float dt)
 		if (player1->getRemainingLife() <= 0 && player2->getRemainingLife() <= 0) {
 			m_state = STATE_GAME_OVER; // Transition to game over
 		}
+		//game over when all the enemies are defeated
+		if (EnemiesDefeated()) { m_state = STATE_GAME_OVER; }
 	}
 	else if (m_state == STATE_GAME_OVER) {
 		// Handle game-over state
@@ -267,6 +269,14 @@ bool GameState::canShoot(int playerId) const
 	return (graphics::getGlobalTime() - it->second) > shootCooldown; // Allow shooting after cooldown
 }
 
+bool GameState::EnemiesDefeated() const
+{
+	for (auto& enemy : enemies) {
+		if (enemy->isActive()) { return false; }
+	}
+	return true;
+}
+
 GameState* GameState::getInstance()
 {
 	if (!m_instance)
@@ -311,6 +321,8 @@ void GameState::checkCollisions() {
 				enemy->takeDamage(100); // Assume full damage
 				bullet->setActive(false); // Deactivate bullet
 				bulletRemoved = true;
+				if (player1) { player1->setScore(player1->getScore() + 100); }
+				if (player2) { player2->setScore(player2->getScore() + 100); }
 
 				// Remove enemy if destroyed
 				if (enemy->isDead()) {
