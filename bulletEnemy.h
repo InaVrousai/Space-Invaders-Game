@@ -1,4 +1,4 @@
-#pragma once
+pragma once
 #include <sgg/graphics.h>
 #include "enemy.h"
 
@@ -25,5 +25,4 @@ protected:
 	const float b_en_size = 2.0f;
 	graphics::Brush bulletBrush;
 };
-
 

@@ -18,7 +18,7 @@ void GameState::init()
 	player2 = new Player(this, "Player2", 2);
 	player2->init(CANVAS_WIDTH - 5.0f, CANVAS_HEIGHT - 2.0f);
 
-
+	enemies.clear();
 	spawnEnemies();
 	m_state = STATE_INIT;
 }
@@ -28,10 +28,11 @@ void GameState::update(float dt)
 
 	if (m_state == STATE_INIT)
 	{
-		if (graphics::getKeyState(graphics::SCANCODE_R)) { m_state = STATE_RUNNING; }
+		if (graphics::getKeyState(graphics::SCANCODE_R)) { m_state = STATE_LOADING; }
 		if (graphics::getKeyState(graphics::SCANCODE_ESCAPE)) { exit(0); }
 		return;
 	}
+	if (m_state == STATE_LOADING) { init(); m_state = STATE_RUNNING; }
 	if (m_state == STATE_RUNNING)
 	{
 		if (player1) { player1->update(dt); }
@@ -100,6 +101,7 @@ void GameState::update(float dt)
 		}
 		//game over when all the enemies are defeated
 		if (EnemiesDefeated()) { m_state = STATE_GAME_OVER; }
+
 	}
 	else if (m_state == STATE_GAME_OVER) {
 		// Handle game-over state
@@ -120,17 +122,18 @@ void GameState::draw()
 	{
 		graphics::Brush init_br;
 		graphics::setFont(ASSET_PATH + std::string("OpenSans-Bold.ttf"));
-		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f + 1.0f, 1.0f, "Press R to Start", init_br);
+		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f - 1.0f, 1.0f, "Press R to Start", init_br);
 
-		SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
-		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f + 4.0f, 1.0f, "Press ESC to Quit", init_br);
+		SETCOLOR(init_br.fill_color, 1.0f, 1.0f, 1.0f);
+		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f + 1.0f, 1.0f, "Press ESC to Quit", init_br);
 		return;
 	}
 
 	if (m_state == STATE_LOADING) {
+		graphics::Brush loading_br;
+		SETCOLOR(loading_br.fill_color, 1.0f, 1.0f, 1.0f);
 		graphics::setFont(ASSET_PATH + std::string("OpenSans-Bold.ttf"));
-		graphics::drawText(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 0.5f, "Game is starting...", br);
-		init(); // Call init to set up the game
+		graphics::drawText(CANVAS_WIDTH / 2 - 2.0f, CANVAS_HEIGHT / 2, 1.0f, "Loading...", loading_br);
 		return;
 	}
 
@@ -180,8 +183,9 @@ void GameState::draw()
 		graphics::Brush game_over_br;
 		graphics::setFont(ASSET_PATH + std::string("OpenSans-Bold.ttf"));
 		graphics::drawText(CANVAS_WIDTH / 2.0f - 7.0f, CANVAS_HEIGHT / 2.0f, 2.5f, "Game Over!", game_over_br);
-		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f + 1.0f, 1.0f, "Press R to Restart", game_over_br);
-
+		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f + 2.0f, 1.0f, "Press R to Restart", game_over_br);
+		//score text
+		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f - 4.0f, 1.0f, "Final Score: " + std::to_string(getScore()), game_over_br);
 		//Quit text
 		SETCOLOR(br.fill_color, 1.0f, 1.0f, 1.0f);
 		graphics::drawText(CANVAS_WIDTH / 2.0f - 4.0f, CANVAS_HEIGHT / 2.0f + 4.0f, 1.0f, "Press ESC to Quit", game_over_br);
@@ -249,7 +253,7 @@ void GameState::spawnEnemies()
 
 void GameState::shootBulletForPlayer(Player* player)
 {
-	if (!player) return;
+	if (!player || !(player->isActive())) return;
 
 	// Check if there is an active bullet for the player
 	if (activeBullets[player->getId()] != nullptr && activeBullets[player->getId()]->isActive()) {
@@ -321,8 +325,14 @@ void GameState::checkCollisions() {
 				enemy->takeDamage(100); // Assume full damage
 				bullet->setActive(false); // Deactivate bullet
 				bulletRemoved = true;
-				if (player1) { player1->setScore(player1->getScore() + 100); }
-				if (player2) { player2->setScore(player2->getScore() + 100); }
+				if (player1) {
+					player1->setScore(player1->getScore() + 100);
+					setScore(player1->getScore() + 100);
+				}
+				if (player2) {
+					player2->setScore(player2->getScore() + 100);
+					setScore(player2->getScore() + 100);
+				}
 
 				// Remove enemy if destroyed
 				if (enemy->isDead()) {

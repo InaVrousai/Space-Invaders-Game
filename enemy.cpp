@@ -22,10 +22,10 @@ void Enemy::init(float x, float y)
 void Enemy::draw()
 {
 	graphics::Brush br;
-	br.texture = std::string(ASSET_PATH) + "enemy.png";
+	br.texture = ASSET_PATH + std::string("enemy.png");
 	br.outline_opacity = 0.0f;
 
-	
+
 	graphics::drawRect(x, y, ENEMY_WIDTH, ENEMY_HEIGHT, br); // Smaller enemy size
 	//Show health bar
 	br.outline_opacity = 0.0f;
@@ -38,8 +38,11 @@ void Enemy::update(float dt)
 {
 
 	// Move the enemy horizontally
-	x += speed * dt ;
-
+	x += speed * dt * 0.0001f;
+	if (speed > 1.0f) {
+		speed -= 0.1f;
+		if (speed < 1.0f) { speed = 1.0f; }
+	}
 	std::cout << "Updated Enemy Position: (" << x << ", " << y << "), Speed: " << speed << "\n";
 
 	// Reverse direction if the enemy hits the canvas edges
@@ -77,18 +80,3 @@ Disk Enemy::getCollisionDisk() const
 	disk.radius = ENEMY_WIDTH * 0.4f; // Smaller radius based on the enemy's width	return disk;
 	return disk;
 }
-
-//void Enemy::shoot()
-//{
-//
-//	if (!isActive()) return;
-//
-//	std::cout << "Enemy shooting bullet from: (" << x << ", " << y << ")\n";
-//
-//	// Create a new bullet
-//	BulletEnemy* bullet = new BulletEnemy(m_state, "EnemyBullet");
-//	bullet->init(x, y); // Initialize bullet at enemy's position
-//	m_state->addBullet(bullet); // Add bullet to the game state
-//}
-
-

@@ -8,8 +8,8 @@ bulletEnemy::bulletEnemy(GameState* gs, const std::string& name)
 
 void bulletEnemy::init(float x, float y)
 {
-	this->x = x;
-	this->y = y;
+	setPosX(x);
+	setPosY(y);
 
 	bulletBrush.outline_opacity = 0.0f;
 	bulletBrush.fill_opacity = 1.0f;

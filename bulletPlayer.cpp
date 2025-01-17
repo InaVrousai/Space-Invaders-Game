@@ -26,28 +26,3 @@ void BulletPlayer::draw() {
 	graphics::drawRect(bx, by, 0.3f, 0.6f, br);
 
 }
-
-void BulletPlayer::update(float dt)
-{
-	by -= speed * (dt / 1000.0f); // Move the bullet upwards based on normalized dt
-	if (isOutOfBounds()) {
-		setActive(false);
-	}
-
-}
-
-Disk BulletPlayer::getCollisionDisk() const {
-	Disk disk;
-	disk.cx = bx;
-	disk.cy = by;
-	disk.radius = b_size / 2.0f;
-	return disk;
-}
-
-bool BulletPlayer::isOutOfBounds() const {
-	return by < -1.0f; // The bullet goes out of bounds if it crosses the top of the screen
-}
-
-BulletPlayer::~BulletPlayer() {
-	// Cleanup if necessary
-}
